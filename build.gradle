@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+    id 'project-report'
+    id 'net.saliman.cobertura' version '2.3.1'
+}
+
+group 'com.marlowsoft'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'com.google.guava:guava:19.0'
+    testCompile 'junit:junit:4.12'
+    testRuntime "org.slf4j:slf4j-api:1.7.10"
+}
