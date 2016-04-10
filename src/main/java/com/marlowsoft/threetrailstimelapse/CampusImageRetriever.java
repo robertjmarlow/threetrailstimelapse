@@ -1,6 +1,7 @@
 package com.marlowsoft.threetrailstimelapse;
 
 import com.google.common.collect.ImmutableList;
+
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;

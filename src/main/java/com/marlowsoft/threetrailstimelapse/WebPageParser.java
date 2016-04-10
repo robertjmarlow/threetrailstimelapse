@@ -1,6 +1,7 @@
 package com.marlowsoft.threetrailstimelapse;
 
 import com.google.common.collect.ImmutableList;
+
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -31,7 +32,7 @@ final class WebPageParser {
         final ImmutableList.Builder<LocalTime> times = ImmutableList.builder();
         final Elements timeElements = doc.select("#pickTime div");
 
-        for(final Element timeElement : timeElements) {
+        for (final Element timeElement : timeElements) {
             times.add(timeFormat.parseLocalTime(timeElement.text()));
         }
 
