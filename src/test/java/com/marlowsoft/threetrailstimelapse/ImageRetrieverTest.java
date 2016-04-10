@@ -3,6 +3,7 @@ package com.marlowsoft.threetrailstimelapse;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.marlowsoft.threetrailstimelapse.bind.ConcreteModule;
+import com.marlowsoft.threetrailstimelapse.bind.FakeModule;
 import com.marlowsoft.threetrailstimelapse.web.ImageRetriever;
 import com.marlowsoft.threetrailstimelapse.web.WebPageRetriever;
 import org.jsoup.Jsoup;
@@ -20,30 +21,26 @@ import static org.junit.Assert.assertEquals;
  */
 public class ImageRetrieverTest {
     @Test
-    public void getImage() throws IOException {
-        final Injector injector = Guice.createInjector(new ConcreteModule());
+    public void getFakeImage() throws IOException {
+        final Injector injector = Guice.createInjector(new FakeModule());
         final ImageRetriever imageRetriever = injector.getInstance(ImageRetriever.class);
 
-        final BufferedImage image = imageRetriever.getImage("http://i.imgur.com/QmXI2af.jpg");
+        final BufferedImage image = imageRetriever.getImage("");
 
-        assertEquals(700, image.getWidth());
-        assertEquals(669, image.getHeight());
+        assertEquals(600, image.getWidth());
+        assertEquals(607, image.getHeight());
     }
 
     @Test
-    public void getPage() throws IOException {
-        final Injector injector = Guice.createInjector(new ConcreteModule());
+    public void getFakePage() throws IOException {
+        final Injector injector = Guice.createInjector(new FakeModule());
         final WebPageRetriever webPageRetriever = injector.getInstance(WebPageRetriever.class);
 
-        final String urlBase = "http://p-tn.net/pCAM/CERNERNE/";
         final String imgUrl = "pCAMovie/CERNERNEimage16-04-07_12-00-01-73.JPG";
-        final String pageUrl = urlBase + "archivepics.asp?m=4&d=7&y=2016&h=12&min=0&scrollPos=0";
 
-        final Document doc = webPageRetriever.getWebPage(pageUrl);
-        final Elements imageContainer = doc.select(".image");
+        final Document doc = webPageRetriever.getWebPage("webpage.html");
         final Elements image = doc.select(".image img");
 
-        assertEquals(1, imageContainer.size());
         assertEquals(imgUrl, image.attr("src"));
     }
 
