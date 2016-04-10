@@ -2,6 +2,8 @@ plugins {
     id 'java'
     id 'project-report'
     id 'net.saliman.cobertura' version '2.3.1'
+    id 'findbugs'
+    id 'checkstyle'
 }
 
 group 'com.marlowsoft'
@@ -18,4 +20,16 @@ dependencies {
             'joda-time:joda-time:2.9.3'
     testCompile 'junit:junit:4.12'
     testRuntime 'org.slf4j:slf4j-api:1.7.10'
+}
+
+findbugs {
+    effort = "max"
+    reportLevel = "high"
+}
+
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
 }
