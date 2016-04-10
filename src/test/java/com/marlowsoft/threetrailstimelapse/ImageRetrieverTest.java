@@ -20,6 +20,10 @@ import static org.junit.Assert.assertEquals;
  * Tests {@link com.marlowsoft.threetrailstimelapse.web.ImageRetrieverImpl}.
  */
 public class ImageRetrieverTest {
+    /**
+     * Tests to make sure the {@link com.marlowsoft.threetrailstimelapse.mock.FakeImageRetrieverImpl} works.
+     * @throws IOException
+     */
     @Test
     public void getFakeImage() throws IOException {
         final Injector injector = Guice.createInjector(new FakeModule());
@@ -31,6 +35,10 @@ public class ImageRetrieverTest {
         assertEquals(607, image.getHeight());
     }
 
+    /**
+     * Tests to make sure the {@link com.marlowsoft.threetrailstimelapse.mock.FakeWebPageRetrieverImpl} works.
+     * @throws IOException
+     */
     @Test
     public void getFakePage() throws IOException {
         final Injector injector = Guice.createInjector(new FakeModule());
@@ -44,6 +52,10 @@ public class ImageRetrieverTest {
         assertEquals(imgUrl, image.attr("src"));
     }
 
+    /**
+     * Grabs an actual image from the actual web site.
+     * @throws IOException
+     */
     @Test
     public void getPageAndImage() throws IOException {
         final Injector injector = Guice.createInjector(new ConcreteModule());
