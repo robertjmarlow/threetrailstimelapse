@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 public class ImageRetrieverTest {
     /**
      * Tests to make sure the {@link com.marlowsoft.threetrailstimelapse.mock.FakeImageRetrieverImpl} works.
-     * @throws IOException
+     * @throws IOException Not possible with the mock implementation.
      */
     @Test
     public void getFakeImage() throws IOException {
@@ -37,7 +37,7 @@ public class ImageRetrieverTest {
 
     /**
      * Tests to make sure the {@link com.marlowsoft.threetrailstimelapse.mock.FakeWebPageRetrieverImpl} works.
-     * @throws IOException
+     * @throws IOException Not possible with the mock implementation.
      */
     @Test
     public void getFakePage() throws IOException {
@@ -54,7 +54,7 @@ public class ImageRetrieverTest {
 
     /**
      * Grabs an actual image from the actual web site.
-     * @throws IOException
+     * @throws IOException If something bad happens when interacting with the web.
      */
     @Test
     public void getPageAndImage() throws IOException {

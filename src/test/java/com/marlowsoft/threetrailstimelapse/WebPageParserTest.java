@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 public class WebPageParserTest {
     /**
      * Verifies the times are retrieved properly in {@link WebPageParser#getTimes(Document)}.
-     * @throws IOException
+     * @throws IOException Not possible with the mock implementation.
      */
     @Test
     public void testGetTimes() throws IOException {

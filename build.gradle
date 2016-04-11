@@ -27,6 +27,11 @@ findbugs {
     reportLevel = "high"
 }
 
+javadoc {
+    classpath += sourceSets.test.compileClasspath
+    source += sourceSets.test.allJava
+}
+
 tasks.withType(FindBugs) {
     reports {
         xml.enabled = false
