@@ -6,7 +6,6 @@ import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.List;
@@ -23,6 +22,8 @@ final class WebPageParser {
     private static final String TIME_FORMAT = "hh:mma";
     private static final DateTimeFormatter timeFormat = DateTimeFormat.forPattern(TIME_FORMAT);
 
+    private static final String BASE_IMAGE_URL = "http://p-tn.net/pCAM/CERNERNE/";
+
     /**
      * Get all the times from the web page.
      * @param doc The web page the times are on.
@@ -32,10 +33,19 @@ final class WebPageParser {
         final ImmutableList.Builder<LocalTime> times = ImmutableList.builder();
         final Elements timeElements = doc.select("#pickTime div");
 
-        for (final Element timeElement : timeElements) {
-            times.add(timeFormat.parseLocalTime(timeElement.text()));
-        }
+        timeElements
+            .stream()
+            .forEach(timeElement -> times.add(timeFormat.parseLocalTime(timeElement.text())));
 
         return times.build();
+    }
+
+    /**
+     * Gets the image URL from the web page.
+     * @param doc The web page the image is on.
+     * @return The full URL of the image.
+     */
+    static String getImageUrl(final Document doc) {
+        return BASE_IMAGE_URL + doc.select(".image img").attr("src");
     }
 }

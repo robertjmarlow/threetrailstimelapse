@@ -1,12 +1,18 @@
 package com.marlowsoft.threetrailstimelapse;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+
+import com.marlowsoft.threetrailstimelapse.bind.InjectorRetriever;
+import com.marlowsoft.threetrailstimelapse.web.ImageRetriever;
+import com.marlowsoft.threetrailstimelapse.web.WebPageRetriever;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -14,13 +20,32 @@ import java.util.List;
  * <a href="http://www.kansascity.com/news/business/development/article3845781.html">Cerner's Three Trails campus</a>.
  */
 public class CampusImageRetriever {
+    private static final String URL_BASE = "http://p-tn.net/pCAM/CERNERNE/archivepics.asp?";
+
     /**
      * Get all images for the specified day.
      * @param day The day to get images.
      * @return An immutable list of images from the specified day.
+     * @throws IOException If something bad happens when retrieving the web page.
      */
-    public List<BufferedImage> getDay(final LocalDate day) {
+    public List<BufferedImage> getDay(final LocalDate day) throws IOException {
         final ImmutableList.Builder<BufferedImage> images = ImmutableList.builder();
+        final WebPageRetriever webPageRetriever = InjectorRetriever.getInjector().getInstance(WebPageRetriever.class);
+        final ImageRetriever imageRetriever = InjectorRetriever.getInjector().getInstance(ImageRetriever.class);
+        final List<LocalTime> times = WebPageParser.getTimes(webPageRetriever.getWebPage(URL_BASE + getParamString(day)));
+        final List<String> timeUrls = Lists.newArrayList();
+
+        times
+            .stream()
+            .forEach(time -> timeUrls.add(URL_BASE + getParamString(day.toLocalDateTime(time))));
+
+
+//        for (final String timeUrl : timeUrls) {
+        // for now, just grab a few images because their site is super-slow
+        for (int timeUrlIdx = 0; timeUrlIdx < 5 && timeUrlIdx < times.size(); timeUrlIdx++) {
+            final String timeUrl = timeUrls.get(timeUrlIdx);
+            images.add(imageRetriever.getImage(WebPageParser.getImageUrl(webPageRetriever.getWebPage(timeUrl))));
+        }
 
         return images.build();
     }
@@ -28,8 +53,8 @@ public class CampusImageRetriever {
     /**
      * Get an image at the specified date and time.
      * <p>
-     * Note that not all dates and times are available! <code>null</code> will be returned if
-     * an image for that date and time isn't available.
+     *     Note that not all dates and times are available! <code>null</code> will be returned if
+     *     an image for that date and time isn't available.
      * </p>
      * @param dateTime The date and time to get an image.
      * @return The image for the specified date and time. <code>null</code> if the image isn't available for
@@ -63,5 +88,40 @@ public class CampusImageRetriever {
         final ImmutableList.Builder<BufferedImage> images = ImmutableList.builder();
 
         return images.build();
+    }
+
+    /**
+     * Gets a date time parameter string for the website based on the specified date and time.
+     * @param dateTime The date and time to build a parameter string for.
+     * @return A date time parameter string for the website.
+     */
+    private String getParamString(final LocalDateTime dateTime) {
+        final StringBuilder paramBuilder = new StringBuilder();
+
+        paramBuilder.append(getParamString(dateTime.toLocalDate()));
+        paramBuilder.append("&h=");
+        paramBuilder.append(dateTime.getHourOfDay());
+        paramBuilder.append("&min=");
+        paramBuilder.append(dateTime.getMinuteOfHour());
+
+        return paramBuilder.toString();
+    }
+
+    /**
+     * Gets a date parameter string for the website based on the specified date.
+     * @param date The date to build a parameter string for.
+     * @return A date parameter string for the website.
+     */
+    private String getParamString(final LocalDate date) {
+        final StringBuilder paramBuilder = new StringBuilder();
+
+        paramBuilder.append("m=");
+        paramBuilder.append(date.getMonthOfYear());
+        paramBuilder.append("&d=");
+        paramBuilder.append(date.getDayOfMonth());
+        paramBuilder.append("&y=");
+        paramBuilder.append(date.getYear());
+
+        return paramBuilder.toString();
     }
 }
