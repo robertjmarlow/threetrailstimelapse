@@ -64,16 +64,18 @@ public class CampusImageRetriever {
         // for now, just grab a few images because their site is super-slow
         for (int timeUrlIdx = 0; timeUrlIdx < 5 && timeUrlIdx < times.size(); timeUrlIdx++) {
             final int timeUrlIdxCopy = timeUrlIdx;
-            executorService.execute(() -> {
-                try {
-                    imageMap.put(timeUrlIdxCopy, imageRetriever.getImage(
-                            WebPageParser.getImageUrl(webPageRetriever.getWebPage(timeUrls.get(timeUrlIdxCopy))))
-                    );
-                } catch (IOException e) {
-                    // TODO log4j
-                    e.printStackTrace();
+            executorService.execute(
+                () -> {
+                    try {
+                        imageMap.put(timeUrlIdxCopy, imageRetriever.getImage(
+                                WebPageParser.getImageUrl(webPageRetriever.getWebPage(timeUrls.get(timeUrlIdxCopy))))
+                        );
+                    } catch (IOException e) {
+                        // TODO log4j
+                        e.printStackTrace();
+                    }
                 }
-            });
+            );
         }
 
         // wait for the threads to complete
