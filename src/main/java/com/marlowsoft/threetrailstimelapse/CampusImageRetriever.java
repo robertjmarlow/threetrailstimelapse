@@ -48,11 +48,7 @@ public class CampusImageRetriever {
      * @throws IOException If something bad happens when retrieving the web page.
      */
     public List<BufferedImage> getDay(final LocalDate day) throws IOException, InterruptedException {
-        final ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT);
-        final ImmutableList.Builder<BufferedImage> images = ImmutableList.builder();
-        final Map<Integer, BufferedImage> imageMap = Collections.synchronizedMap(new HashMap<>());
         final WebPageRetriever webPageRetriever = InjectorRetriever.getInjector().getInstance(WebPageRetriever.class);
-        final ImageRetriever imageRetriever = InjectorRetriever.getInjector().getInstance(ImageRetriever.class);
         final List<LocalTime> times = WebPageParser.getTimes(webPageRetriever.getWebPage(URL_BASE + getParamString(day)));
         final List<String> timeUrls = Lists.newArrayList();
 
@@ -60,34 +56,7 @@ public class CampusImageRetriever {
             .stream()
             .forEach(time -> timeUrls.add(URL_BASE + getParamString(day.toLocalDateTime(time))));
 
-        // for now, just grab a few images because their site is super-slow
-        for (int timeUrlIdx = 0; timeUrlIdx < 5 && timeUrlIdx < times.size(); timeUrlIdx++) {
-//        for (int timeUrlIdx = 0; timeUrlIdx < times.size(); timeUrlIdx++) {
-            final int timeUrlIdxCopy = timeUrlIdx;
-            executorService.execute(
-                () -> {
-                    try {
-                        imageMap.put(timeUrlIdxCopy, imageRetriever.getImage(
-                                WebPageParser.getImageUrl(webPageRetriever.getWebPage(timeUrls.get(timeUrlIdxCopy))))
-                        );
-                    } catch (IOException e) {
-                        // TODO log4j
-                        e.printStackTrace();
-                    }
-                }
-            );
-        }
-
-        // wait for the threads to complete
-        executorService.shutdown();
-        executorService.awaitTermination(IMAGE_WAIT_TIME, TimeUnit.SECONDS);
-
-        // re-assemble the images back into order
-        for (int imgIdx : imageMap.keySet()) {
-            images.add(imageMap.get(imgIdx));
-        }
-
-        return images.build();
+        return getImages(timeUrls);
     }
 
     /**
@@ -112,7 +81,11 @@ public class CampusImageRetriever {
      * @return An immutable list of all images for the date range.
      */
     public List<BufferedImage> getDateRange(final LocalDate beginDate, final LocalDate endDate, final LocalTime timeOfDay) {
+        final ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT);
         final ImmutableList.Builder<BufferedImage> images = ImmutableList.builder();
+        final Map<Integer, BufferedImage> imageMap = Collections.synchronizedMap(new HashMap<>());
+        final WebPageRetriever webPageRetriever = InjectorRetriever.getInjector().getInstance(WebPageRetriever.class);
+        final ImageRetriever imageRetriever = InjectorRetriever.getInjector().getInstance(ImageRetriever.class);
 
         return images.build();
     }
@@ -126,6 +99,51 @@ public class CampusImageRetriever {
      */
     public List<BufferedImage> getDateRange(final LocalDate beginDate, final LocalDate endDate, final List<LocalTime> timesOfDay) {
         final ImmutableList.Builder<BufferedImage> images = ImmutableList.builder();
+
+        return images.build();
+    }
+
+    /**
+     * Get all images from the specified urls that have a time lapse picture on them.
+     * @param timeUrls Urls that have time lapse images to grab. e.g.
+     *                 <code>http://p-tn.net/pCAM/CERNERNE/archivepics.asp?m=4&d=7&y=2016&h=06&min=59</code>
+     * @return All images from the specified urls
+     * @throws InterruptedException This function is multi-threaded. This will be thrown if something goes
+     * wrong with the threads while retrieving images.
+     */
+    private List<BufferedImage> getImages(final List<String> timeUrls) throws InterruptedException {
+        final ImmutableList.Builder<BufferedImage> images = ImmutableList.builder();
+        final ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT);
+        final Map<Integer, BufferedImage> imageMap = Collections.synchronizedMap(new HashMap<>());
+        final WebPageRetriever webPageRetriever = InjectorRetriever.getInjector().getInstance(WebPageRetriever.class);
+        final ImageRetriever imageRetriever = InjectorRetriever.getInjector().getInstance(ImageRetriever.class);
+
+        // for now, just grab a few images because their site is super-slow
+        for (int timeUrlIdx = 0; timeUrlIdx < 5 && timeUrlIdx < timeUrls.size(); timeUrlIdx++) {
+//        for (int timeUrlIdx = 0; timeUrlIdx < times.size(); timeUrlIdx++) {
+            final int timeUrlIdxCopy = timeUrlIdx;
+            executorService.execute(
+                () -> {
+                    try {
+                        imageMap.put(timeUrlIdxCopy, imageRetriever.getImage(
+                                WebPageParser.getImageUrl(webPageRetriever.getWebPage(timeUrls.get(timeUrlIdxCopy))))
+                        );
+                    } catch (IOException e) {
+                        // TODO log4j
+                        e.printStackTrace();
+                    }
+                }
+            );
+        }
+
+        // wait for the threads to complete
+        executorService.shutdown();
+        executorService.awaitTermination(IMAGE_WAIT_TIME, TimeUnit.SECONDS);
+
+        // re-assemble the images back into order
+        for (int imgIdx : imageMap.keySet()) {
+            images.add(imageMap.get(imgIdx));
+        }
 
         return images.build();
     }
