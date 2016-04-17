@@ -60,9 +60,9 @@ public class CampusImageRetriever {
             .stream()
             .forEach(time -> timeUrls.add(URL_BASE + getParamString(day.toLocalDateTime(time))));
 
-//        for (final String timeUrl : timeUrls) {
         // for now, just grab a few images because their site is super-slow
         for (int timeUrlIdx = 0; timeUrlIdx < 5 && timeUrlIdx < times.size(); timeUrlIdx++) {
+//        for (int timeUrlIdx = 0; timeUrlIdx < times.size(); timeUrlIdx++) {
             final int timeUrlIdxCopy = timeUrlIdx;
             executorService.execute(
                 () -> {
@@ -82,8 +82,9 @@ public class CampusImageRetriever {
         executorService.shutdown();
         executorService.awaitTermination(IMAGE_WAIT_TIME, TimeUnit.SECONDS);
 
-        for (int timeUrlIdx = 0; timeUrlIdx < 5 && timeUrlIdx < times.size(); timeUrlIdx++) {
-            images.add(imageMap.get(timeUrlIdx));
+        // re-assemble the images back into order
+        for (int imgIdx : imageMap.keySet()) {
+            images.add(imageMap.get(imgIdx));
         }
 
         return images.build();

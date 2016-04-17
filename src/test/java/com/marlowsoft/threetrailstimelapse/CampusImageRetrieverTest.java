@@ -2,6 +2,7 @@ package com.marlowsoft.threetrailstimelapse;
 
 import com.marlowsoft.threetrailstimelapse.bind.FakeModule;
 import com.marlowsoft.threetrailstimelapse.bind.InjectorRetriever;
+import com.marlowsoft.threetrailstimelapse.encode.VideoEncoder;
 import org.joda.time.LocalDate;
 import org.junit.Test;
 
@@ -24,5 +25,7 @@ public class CampusImageRetrieverTest {
         final List<BufferedImage> images = retriever.getDay(day);
 
         assertEquals(5, images.size());
+
+        VideoEncoder.encode(images, "cool.webm");
     }
 }

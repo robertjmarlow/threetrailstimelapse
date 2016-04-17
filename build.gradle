@@ -17,7 +17,8 @@ dependencies {
     compile 'com.google.guava:guava:19.0',
             'com.google.inject:guice:4.0',
             'org.jsoup:jsoup:1.8.3',
-            'joda-time:joda-time:2.9.3'
+            'joda-time:joda-time:2.9.3',
+            'org.jcodec:jcodec-javase:0.1.9'
     testCompile 'junit:junit:4.12'
     testRuntime 'org.slf4j:slf4j-api:1.7.10'
 }
