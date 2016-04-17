@@ -14,7 +14,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class CampusImageRetrieverTest {
     @Test
-    public void testGetDay() throws IOException {
+    public void testGetDay() throws IOException, InterruptedException {
         final CampusImageRetriever retriever = new CampusImageRetriever();
         final LocalDate day = new LocalDate(2016, 4, 7);
 

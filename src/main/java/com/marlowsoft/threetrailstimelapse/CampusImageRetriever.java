@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 
 import com.marlowsoft.threetrailstimelapse.bind.InjectorRetriever;
 import com.marlowsoft.threetrailstimelapse.web.ImageRetriever;
+import com.marlowsoft.threetrailstimelapse.web.ImageRetrieverRunner;
 import com.marlowsoft.threetrailstimelapse.web.WebPageRetriever;
 
 import org.joda.time.LocalDate;
@@ -13,14 +14,33 @@ import org.joda.time.LocalTime;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Various methods to retrieve images from the construction progress of
  * <a href="http://www.kansascity.com/news/business/development/article3845781.html">Cerner's Three Trails campus</a>.
  */
 public class CampusImageRetriever {
+    /**
+     * The base of the URL to get images.
+     */
     private static final String URL_BASE = "http://p-tn.net/pCAM/CERNERNE/archivepics.asp?";
+
+    /**
+     * The maximum number of threads to concurrently get images from the website.
+     */
+    private static final int THREAD_COUNT = 10;
+
+    /**
+     * How long to wait, in seconds, to retrieve images from the website before giving up.
+     */
+    private static final int IMAGE_WAIT_TIME = 30;
 
     /**
      * Get all images for the specified day.
@@ -28,8 +48,10 @@ public class CampusImageRetriever {
      * @return An immutable list of images from the specified day.
      * @throws IOException If something bad happens when retrieving the web page.
      */
-    public List<BufferedImage> getDay(final LocalDate day) throws IOException {
+    public List<BufferedImage> getDay(final LocalDate day) throws IOException, InterruptedException {
+        final ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT);
         final ImmutableList.Builder<BufferedImage> images = ImmutableList.builder();
+        final Map<Integer, BufferedImage> imageMap = Collections.synchronizedMap(new HashMap<>());
         final WebPageRetriever webPageRetriever = InjectorRetriever.getInjector().getInstance(WebPageRetriever.class);
         final ImageRetriever imageRetriever = InjectorRetriever.getInjector().getInstance(ImageRetriever.class);
         final List<LocalTime> times = WebPageParser.getTimes(webPageRetriever.getWebPage(URL_BASE + getParamString(day)));
@@ -39,12 +61,20 @@ public class CampusImageRetriever {
             .stream()
             .forEach(time -> timeUrls.add(URL_BASE + getParamString(day.toLocalDateTime(time))));
 
-
 //        for (final String timeUrl : timeUrls) {
         // for now, just grab a few images because their site is super-slow
         for (int timeUrlIdx = 0; timeUrlIdx < 5 && timeUrlIdx < times.size(); timeUrlIdx++) {
-            final String timeUrl = timeUrls.get(timeUrlIdx);
-            images.add(imageRetriever.getImage(WebPageParser.getImageUrl(webPageRetriever.getWebPage(timeUrl))));
+            executorService.execute(new ImageRetrieverRunner(imageRetriever, imageMap, timeUrlIdx,
+                    // TODO oh great, now i have to thread the page retrieval
+                    WebPageParser.getImageUrl(webPageRetriever.getWebPage(timeUrls.get(timeUrlIdx)))));
+        }
+
+        // wait for the threads to complete
+        executorService.shutdown();
+        executorService.awaitTermination(IMAGE_WAIT_TIME, TimeUnit.SECONDS);
+
+        for (int timeUrlIdx = 0; timeUrlIdx < 5 && timeUrlIdx < times.size(); timeUrlIdx++) {
+            images.add(imageMap.get(timeUrlIdx));
         }
 
         return images.build();
