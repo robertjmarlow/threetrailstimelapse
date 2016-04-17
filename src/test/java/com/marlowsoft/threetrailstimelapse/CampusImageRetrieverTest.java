@@ -4,6 +4,7 @@ import com.marlowsoft.threetrailstimelapse.bind.FakeModule;
 import com.marlowsoft.threetrailstimelapse.bind.InjectorRetriever;
 import com.marlowsoft.threetrailstimelapse.encode.VideoEncoder;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.junit.Test;
 
 import java.awt.image.BufferedImage;
@@ -25,6 +26,19 @@ public class CampusImageRetrieverTest {
         final List<BufferedImage> images = retriever.getDay(day);
 
         assertEquals(5, images.size());
+
+        VideoEncoder.encode(images, "cool.webm");
+    }
+
+    @Test
+    public void testGetDateRange() throws IOException, InterruptedException {
+        InjectorRetriever.setInjector(new FakeModule());
+        final CampusImageRetriever retriever = new CampusImageRetriever();
+        final LocalDate beginDate = new LocalDate(2016, 1, 1);
+        final LocalDate endDate = new LocalDate(2016, 4, 15);
+        final LocalTime timeOfDay = new LocalTime(12, 0);
+
+        final List<BufferedImage> images = retriever.getDateRange(beginDate, endDate, timeOfDay);
 
         VideoEncoder.encode(images, "cool.webm");
     }

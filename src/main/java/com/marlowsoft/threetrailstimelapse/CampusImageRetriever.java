@@ -7,9 +7,11 @@ import com.marlowsoft.threetrailstimelapse.bind.InjectorRetriever;
 import com.marlowsoft.threetrailstimelapse.web.ImageRetriever;
 import com.marlowsoft.threetrailstimelapse.web.WebPageRetriever;
 
+import org.joda.time.DateTimeComparator;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
+import org.jsoup.nodes.Document;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -80,14 +82,17 @@ public class CampusImageRetriever {
      * @param timeOfDay The time of day to retrieve each day's image.
      * @return An immutable list of all images for the date range.
      */
-    public List<BufferedImage> getDateRange(final LocalDate beginDate, final LocalDate endDate, final LocalTime timeOfDay) {
-        final ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT);
-        final ImmutableList.Builder<BufferedImage> images = ImmutableList.builder();
-        final Map<Integer, BufferedImage> imageMap = Collections.synchronizedMap(new HashMap<>());
-        final WebPageRetriever webPageRetriever = InjectorRetriever.getInjector().getInstance(WebPageRetriever.class);
-        final ImageRetriever imageRetriever = InjectorRetriever.getInjector().getInstance(ImageRetriever.class);
+    public List<BufferedImage> getDateRange(final LocalDate beginDate, final LocalDate endDate,
+                                            final LocalTime timeOfDay) throws IOException, InterruptedException {
+        final List<String> pageUrls = Lists.newArrayList();
+        LocalDate curDate = beginDate;
 
-        return images.build();
+        while (curDate.compareTo(endDate) <= 0) {
+            pageUrls.add(URL_BASE + getParamString(curDate.toLocalDateTime(timeOfDay)));
+            curDate = curDate.plusDays(1);
+        }
+
+        return getImages(pageUrls);
     }
 
     /**
@@ -120,7 +125,7 @@ public class CampusImageRetriever {
 
         // for now, just grab a few images because their site is super-slow
         for (int timeUrlIdx = 0; timeUrlIdx < 5 && timeUrlIdx < timeUrls.size(); timeUrlIdx++) {
-//        for (int timeUrlIdx = 0; timeUrlIdx < times.size(); timeUrlIdx++) {
+//        for (int timeUrlIdx = 0; timeUrlIdx < timeUrls.size(); timeUrlIdx++) {
             final int timeUrlIdxCopy = timeUrlIdx;
             executorService.execute(
                 () -> {
