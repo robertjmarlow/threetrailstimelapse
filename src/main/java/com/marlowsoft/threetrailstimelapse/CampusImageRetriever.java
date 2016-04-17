@@ -11,6 +11,7 @@ import com.marlowsoft.threetrailstimelapse.web.WebPageRetriever;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
+import org.jsoup.nodes.Document;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -64,9 +65,17 @@ public class CampusImageRetriever {
 //        for (final String timeUrl : timeUrls) {
         // for now, just grab a few images because their site is super-slow
         for (int timeUrlIdx = 0; timeUrlIdx < 5 && timeUrlIdx < times.size(); timeUrlIdx++) {
-            executorService.execute(new ImageRetrieverRunner(imageRetriever, imageMap, timeUrlIdx,
-                    // TODO oh great, now i have to thread the page retrieval
-                    WebPageParser.getImageUrl(webPageRetriever.getWebPage(timeUrls.get(timeUrlIdx)))));
+            final int timeUrlIdxCopy = timeUrlIdx;
+            executorService.execute(() -> {
+                try {
+                    imageMap.put(timeUrlIdxCopy, imageRetriever.getImage(
+                            WebPageParser.getImageUrl(webPageRetriever.getWebPage(timeUrls.get(timeUrlIdxCopy))))
+                    );
+                } catch (IOException e) {
+                    // TODO log4j
+                    e.printStackTrace();
+                }
+            });
         }
 
         // wait for the threads to complete
