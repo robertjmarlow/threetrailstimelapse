@@ -5,13 +5,11 @@ import com.google.common.collect.Lists;
 
 import com.marlowsoft.threetrailstimelapse.bind.InjectorRetriever;
 import com.marlowsoft.threetrailstimelapse.web.ImageRetriever;
-import com.marlowsoft.threetrailstimelapse.web.ImageRetrieverRunner;
 import com.marlowsoft.threetrailstimelapse.web.WebPageRetriever;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
-import org.jsoup.nodes.Document;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
