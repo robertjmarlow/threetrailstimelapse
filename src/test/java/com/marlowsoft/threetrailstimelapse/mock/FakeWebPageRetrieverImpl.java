@@ -14,6 +14,6 @@ import java.io.IOException;
 public class FakeWebPageRetrieverImpl implements WebPageRetriever {
     @Override
     public Document getWebPage(String url) throws IOException {
-        return Jsoup.parse(new File("src/test/resources/" + url), Charsets.UTF_8.name());
+        return Jsoup.parse(new File("src/test/resources/webpage.html"), Charsets.UTF_8.name());
     }
 }

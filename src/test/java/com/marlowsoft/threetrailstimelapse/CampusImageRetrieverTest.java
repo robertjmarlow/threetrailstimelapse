@@ -1,5 +1,7 @@
 package com.marlowsoft.threetrailstimelapse;
 
+import com.marlowsoft.threetrailstimelapse.bind.FakeModule;
+import com.marlowsoft.threetrailstimelapse.bind.InjectorRetriever;
 import org.joda.time.LocalDate;
 import org.junit.Test;
 
@@ -15,6 +17,7 @@ import static org.junit.Assert.assertEquals;
 public class CampusImageRetrieverTest {
     @Test
     public void testGetDay() throws IOException, InterruptedException {
+        InjectorRetriever.setInjector(new FakeModule());
         final CampusImageRetriever retriever = new CampusImageRetriever();
         final LocalDate day = new LocalDate(2016, 4, 7);
 
