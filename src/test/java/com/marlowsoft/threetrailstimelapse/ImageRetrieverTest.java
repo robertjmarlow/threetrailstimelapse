@@ -1,20 +1,21 @@
 package com.marlowsoft.threetrailstimelapse;
 
+import static org.junit.Assert.assertEquals;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import com.marlowsoft.threetrailstimelapse.bind.ConcreteModule;
 import com.marlowsoft.threetrailstimelapse.bind.FakeModule;
 import com.marlowsoft.threetrailstimelapse.web.ImageRetriever;
 import com.marlowsoft.threetrailstimelapse.web.WebPageRetriever;
-import org.jsoup.Jsoup;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.junit.Test;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Tests {@link com.marlowsoft.threetrailstimelapse.web.ImageRetrieverImpl}.
@@ -53,10 +54,10 @@ public class ImageRetrieverTest {
     }
 
     /**
-     * Grabs an actual image from the actual web site.
+     * Grabs an actual image from the actual web site. This is more of an integration test than anything. Feel free to uncomment and run.
      * @throws IOException If something bad happens when interacting with the web.
      */
-    @Test
+//    @Test
     public void getPageAndImage() throws IOException {
         final Injector injector = Guice.createInjector(new ConcreteModule());
         final ImageRetriever imageRetriever = injector.getInstance(ImageRetriever.class);

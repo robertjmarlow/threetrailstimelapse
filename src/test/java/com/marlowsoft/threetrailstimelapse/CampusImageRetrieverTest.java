@@ -1,8 +1,9 @@
 package com.marlowsoft.threetrailstimelapse;
 
+import static org.junit.Assert.assertEquals;
+
 import com.marlowsoft.threetrailstimelapse.bind.FakeModule;
 import com.marlowsoft.threetrailstimelapse.bind.InjectorRetriever;
-import com.marlowsoft.threetrailstimelapse.encode.VideoEncoder;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.junit.Test;
@@ -11,12 +12,15 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * Tests {@link CampusImageRetriever}.
  */
 public class CampusImageRetrieverTest {
+    /**
+     * Gets a single day and verifies the number of retrieved images is correct.
+     * @throws IOException
+     * @throws InterruptedException
+     */
     @Test
     public void testGetDay() throws IOException, InterruptedException {
         InjectorRetriever.setInjector(new FakeModule());
@@ -25,11 +29,14 @@ public class CampusImageRetrieverTest {
 
         final List<BufferedImage> images = retriever.getDay(day);
 
-        assertEquals(5, images.size());
-
-        VideoEncoder.encode(images, "cool.webm");
+        assertEquals(31, images.size());
     }
 
+    /**
+     * Get a date range and verifies the number of retrieved images is correct.
+     * @throws IOException
+     * @throws InterruptedException
+     */
     @Test
     public void testGetDateRange() throws IOException, InterruptedException {
         InjectorRetriever.setInjector(new FakeModule());
@@ -40,6 +47,6 @@ public class CampusImageRetrieverTest {
 
         final List<BufferedImage> images = retriever.getDateRange(beginDate, endDate, timeOfDay);
 
-        VideoEncoder.encode(images, "cool.webm");
+        assertEquals(106, images.size());
     }
 }

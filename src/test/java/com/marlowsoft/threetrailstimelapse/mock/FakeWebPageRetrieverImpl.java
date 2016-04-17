@@ -1,7 +1,9 @@
 package com.marlowsoft.threetrailstimelapse.mock;
 
 import com.google.common.base.Charsets;
+
 import com.marlowsoft.threetrailstimelapse.web.WebPageRetriever;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 

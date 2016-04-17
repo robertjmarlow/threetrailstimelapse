@@ -1,17 +1,19 @@
 package com.marlowsoft.threetrailstimelapse;
 
+import static org.junit.Assert.assertEquals;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import com.marlowsoft.threetrailstimelapse.bind.FakeModule;
 import com.marlowsoft.threetrailstimelapse.web.WebPageRetriever;
+
 import org.joda.time.LocalTime;
 import org.jsoup.nodes.Document;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Tests {@link WebPageParser}.
