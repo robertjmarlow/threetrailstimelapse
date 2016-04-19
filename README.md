@@ -4,7 +4,7 @@ Cerner is building [a fancy new campus](http://www.kansascity.com/news/business/
 
 This library splices together a bunch of images from the archived webcam pictures of the construction to create a time lapse.
 
-Here's a (slightly choppy) result from January 1, 2016 to April 15, 2016: [4.4MB gfycat](https://gfycat.com/WeepyAshamedDogwoodtwigborer).
+Here's a (slightly choppy) result from January 1, 2016 to April 15, 2016: [3.4MB gfycat](https://gfycat.com/GroundedZanyGuanaco#?speed=0.25).
 
 # Building
 
