@@ -4,10 +4,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import com.marlowsoft.threetrailstimelapse.bind.InjectorRetriever;
-import com.marlowsoft.threetrailstimelapse.web.ImageRetriever;
+
+import com.marlowsoft.threetrailstimelapse.cache.ImageCache;
+import com.marlowsoft.threetrailstimelapse.cache.WebPageCache;
 import com.marlowsoft.threetrailstimelapse.web.WebPageRetriever;
 
-import org.joda.time.DateTimeComparator;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
@@ -19,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -83,12 +85,15 @@ public class CampusImageRetriever {
      * @return An immutable list of all images for the date range.
      */
     public List<BufferedImage> getDateRange(final LocalDate beginDate, final LocalDate endDate,
-                                            final LocalTime timeOfDay) throws IOException, InterruptedException {
+                                            final LocalTime timeOfDay) throws IOException, InterruptedException, ExecutionException {
         final List<String> pageUrls = Lists.newArrayList();
         LocalDate curDate = beginDate;
 
         while (curDate.compareTo(endDate) <= 0) {
-            pageUrls.add(URL_BASE + getParamString(curDate.toLocalDateTime(timeOfDay)));
+            final String url = URL_BASE + getParamString(curDate.toLocalDateTime(timeOfDay));
+            if (WebPageParser.getTimes(WebPageCache.getWebPage(url)).contains(timeOfDay)) {
+                pageUrls.add(url);
+            }
             curDate = curDate.plusDays(1);
         }
 
@@ -120,18 +125,16 @@ public class CampusImageRetriever {
         final ImmutableList.Builder<BufferedImage> images = ImmutableList.builder();
         final ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT);
         final Map<Integer, BufferedImage> imageMap = Collections.synchronizedMap(new HashMap<>());
-        final WebPageRetriever webPageRetriever = InjectorRetriever.getInjector().getInstance(WebPageRetriever.class);
-        final ImageRetriever imageRetriever = InjectorRetriever.getInjector().getInstance(ImageRetriever.class);
 
         for (int timeUrlIdx = 0; timeUrlIdx < timeUrls.size(); timeUrlIdx++) {
             final int timeUrlIdxCopy = timeUrlIdx;
             executorService.execute(
                 () -> {
                     try {
-                        imageMap.put(timeUrlIdxCopy, imageRetriever.getImage(
-                                WebPageParser.getImageUrl(webPageRetriever.getWebPage(timeUrls.get(timeUrlIdxCopy))))
+                        imageMap.put(timeUrlIdxCopy, ImageCache.getImage(
+                                WebPageParser.getImageUrl(WebPageCache.getWebPage(timeUrls.get(timeUrlIdxCopy))))
                         );
-                    } catch (IOException e) {
+                    } catch (final ExecutionException e) {
                         // TODO log4j
                         e.printStackTrace();
                     }

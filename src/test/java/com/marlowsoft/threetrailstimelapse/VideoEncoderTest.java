@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Tests {@link VideoEncoder}.
@@ -21,7 +22,7 @@ public class VideoEncoderTest {
     private static final String TEST_VIDEO_FILE_NAME = "./src/test/resources/cool.webm";
 
     @Test
-    public void testEncode() throws IOException, InterruptedException {
+    public void testEncode() throws IOException, InterruptedException, ExecutionException {
         InjectorRetriever.setInjector(new FakeModule());
         final CampusImageRetriever retriever = new CampusImageRetriever();
         final LocalDate beginDate = new LocalDate(2016, 1, 1);

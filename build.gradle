@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'project-report'
-    id 'net.saliman.cobertura' version '2.3.1'
+    id 'jacoco'
     id 'findbugs'
     id 'checkstyle'
 }
@@ -26,6 +26,15 @@ dependencies {
 findbugs {
     effort = "max"
     reportLevel = "high"
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.destination "${buildDir}/reports/coverage"
+        html.enabled true
+    }
 }
 
 javadoc {

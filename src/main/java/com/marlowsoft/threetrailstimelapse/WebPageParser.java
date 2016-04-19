@@ -9,6 +9,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Methods to parse the web page the campus images are stored on.
@@ -24,6 +26,11 @@ final class WebPageParser {
 
     private static final String BASE_IMAGE_URL = "http://p-tn.net/pCAM/CERNERNE/";
 
+    private static final String TIME_DIVS_SELECTOR = "#pickTime div";
+    private static final String WEBCAM_IMAGE_SELECTOR = ".image img";
+
+    private static final Pattern MIDNIGHT_TIME = Pattern.compile("00:([0-9]{2})am");
+
     /**
      * Get all the times from the web page.
      * @param doc The web page the times are on.
@@ -31,11 +38,21 @@ final class WebPageParser {
      */
     static List<LocalTime> getTimes(final Document doc) {
         final ImmutableList.Builder<LocalTime> times = ImmutableList.builder();
-        final Elements timeElements = doc.select("#pickTime div");
+        final Elements timeElements = doc.select(TIME_DIVS_SELECTOR);
 
         timeElements
             .stream()
-            .forEach(timeElement -> times.add(timeFormat.parseLocalTime(timeElement.text())));
+            .forEach(timeElement -> {
+                    // the site has times near midnight display as "00:xyam"
+                    //  joda doesn't like this, so adjust the string to "12:xyam" if needed
+                    String timeText = timeElement.text();
+                    final Matcher matcher = MIDNIGHT_TIME.matcher(timeText);
+                    if (matcher.matches()) {
+                        timeText = "12:" + matcher.group(1) + "am";
+                    }
+                    times.add(timeFormat.parseLocalTime(timeText));
+                }
+            );
 
         return times.build();
     }
@@ -46,6 +63,6 @@ final class WebPageParser {
      * @return The full URL of the image.
      */
     static String getImageUrl(final Document doc) {
-        return BASE_IMAGE_URL + doc.select(".image img").attr("src");
+        return BASE_IMAGE_URL + doc.select(WEBCAM_IMAGE_SELECTOR).attr("src");
     }
 }

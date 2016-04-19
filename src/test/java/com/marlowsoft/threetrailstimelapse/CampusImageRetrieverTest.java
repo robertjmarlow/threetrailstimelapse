@@ -4,13 +4,16 @@ import static org.junit.Assert.assertEquals;
 
 import com.marlowsoft.threetrailstimelapse.bind.FakeModule;
 import com.marlowsoft.threetrailstimelapse.bind.InjectorRetriever;
+import com.marlowsoft.threetrailstimelapse.mock.FakeWebPageRetrieverImpl;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
+import org.junit.After;
 import org.junit.Test;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Tests {@link CampusImageRetriever}.
@@ -38,7 +41,7 @@ public class CampusImageRetrieverTest {
      * @throws InterruptedException
      */
     @Test
-    public void testGetDateRange() throws IOException, InterruptedException {
+    public void testGetDateRange() throws IOException, InterruptedException, ExecutionException {
         InjectorRetriever.setInjector(new FakeModule());
         final CampusImageRetriever retriever = new CampusImageRetriever();
         final LocalDate beginDate = new LocalDate(2016, 1, 1);
@@ -48,5 +51,31 @@ public class CampusImageRetrieverTest {
         final List<BufferedImage> images = retriever.getDateRange(beginDate, endDate, timeOfDay);
 
         assertEquals(106, images.size());
+    }
+
+    /**
+     * Tests to make sure that images aren't added if there isn't an image there for that time of the day.
+     * @throws InterruptedException
+     * @throws ExecutionException
+     * @throws IOException
+     */
+    @Test
+    public void testGetDateRangeNoTimeOfDay() throws InterruptedException, ExecutionException, IOException {
+        InjectorRetriever.setInjector(new FakeModule());
+        final CampusImageRetriever retriever = new CampusImageRetriever();
+        final LocalDate beginDate = new LocalDate(2016, 4, 16);
+        final LocalDate endDate = new LocalDate(2016, 4, 19);
+        final LocalTime timeOfDay = new LocalTime(12, 0);
+
+        FakeWebPageRetrieverImpl.setFakePage("webpage-midnight-times.html");
+
+        final List<BufferedImage> images = retriever.getDateRange(beginDate, endDate, timeOfDay);
+
+        assertEquals(0, images.size());
+    }
+
+    @After
+    public void tearDown() {
+        FakeWebPageRetrieverImpl.setFakePage("webpage.html");
     }
 }
