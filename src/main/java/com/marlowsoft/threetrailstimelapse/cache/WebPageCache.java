@@ -4,7 +4,9 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
-import com.marlowsoft.threetrailstimelapse.bind.InjectorRetriever;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import com.marlowsoft.threetrailstimelapse.web.WebPageRetriever;
 
 import org.jsoup.nodes.Document;
@@ -15,25 +17,28 @@ import java.util.concurrent.TimeUnit;
 /**
  * A cache of a bunch of {@link org.jsoup.nodes.Document}.
  */
+@Singleton
 public final class WebPageCache {
-    private static final LoadingCache<String, Document> webPages;
+    private final LoadingCache<String, Document> webPages;
 
-    static {
-        webPages = CacheBuilder.newBuilder()
-            .maximumSize(1000)
-            .expireAfterAccess(10, TimeUnit.MINUTES)
-            .build(new CacheLoader<String, Document>() {
-                @Override
-                public Document load(final String url) throws Exception {
-                    return InjectorRetriever.getInjector().getInstance(WebPageRetriever.class).getWebPage(url);
-                }
-            });
-    }
+    @Inject
+    private WebPageRetriever webPageRetriever;
 
     /**
      * Private constructor to prevent instantiation
      */
-    private WebPageCache() {}
+    @Inject
+    private WebPageCache() {
+        webPages = CacheBuilder.newBuilder()
+                .maximumSize(1000)
+                .expireAfterAccess(10, TimeUnit.MINUTES)
+                .build(new CacheLoader<String, Document>() {
+                    @Override
+                    public Document load(final String url) throws Exception {
+                        return webPageRetriever.getWebPage(url);
+                    }
+                });
+    }
 
     /**
      * Get a web page, from the cache if able. If the web page is not in the cache, get it from the internet.
@@ -41,7 +46,7 @@ public final class WebPageCache {
      * @return The web page.
      * @throws ExecutionException If something bad happens during the retrieval of the web page.
      */
-    public static Document getWebPage(final String url) throws ExecutionException {
+    public Document getWebPage(final String url) throws ExecutionException {
         return webPages.get(url);
     }
 }
