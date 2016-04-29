@@ -4,6 +4,7 @@ plugins {
     id 'jacoco'
     id 'findbugs'
     id 'checkstyle'
+    id 'maven'
 }
 
 group 'com.marlowsoft'
@@ -18,9 +19,11 @@ dependencies {
             'com.google.inject:guice:4.0',
             'org.jsoup:jsoup:1.8.3',
             'joda-time:joda-time:2.9.3',
-            'org.jcodec:jcodec-javase:0.1.9'
-    testCompile 'junit:junit:4.12'
-    testRuntime 'org.slf4j:slf4j-api:1.7.10'
+            'org.jcodec:jcodec-javase:0.1.9',
+            'redis.clients:jedis:2.8.1',
+            'com.google.code.gson:gson:2.6.2'
+    testCompile 'junit:junit:4.12',
+            'org.nanohttpd:nanohttpd:2.3.0'
 }
 
 findbugs {
@@ -47,4 +50,21 @@ tasks.withType(FindBugs) {
         xml.enabled = false
         html.enabled = true
     }
+}
+
+// these next two tasks were blatantly copypasted from:
+//  http://ianp.org/2011/11/04/installing-to-the-local-maven-repo-with-gradle/
+task sourcesJar(type: Jar, dependsOn:classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn:javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
 }

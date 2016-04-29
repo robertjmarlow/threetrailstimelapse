@@ -43,6 +43,7 @@ public class WebPageParserTest {
      * Verifies that times that start have the format "00:xyam", e.g. "00:40am",
      * will come back as "12:40am". This is necessary because joda time doesn't
      * like the "00:xyam" format.
+     * @throws IOException Not possible with the mock implementation.
      */
     @Test
     public void testGetTimesNearMidnight() throws IOException {

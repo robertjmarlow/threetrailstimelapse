@@ -26,7 +26,7 @@ public class VideoEncoderTest {
         InjectorRetriever.setInjector(new FakeModule());
         final CampusImageRetriever retriever = new CampusImageRetriever();
         final LocalDate beginDate = new LocalDate(2016, 1, 1);
-        final LocalDate endDate = new LocalDate(2016, 4, 15);
+        final LocalDate endDate = new LocalDate(2016, 1, 15);
         final LocalTime timeOfDay = new LocalTime(12, 0);
 
         VideoEncoder.encode(retriever.getDateRange(beginDate, endDate, timeOfDay), TEST_VIDEO_FILE_NAME);

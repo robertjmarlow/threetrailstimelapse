@@ -49,7 +49,8 @@ public class CampusImageRetriever {
      * Get all images for the specified day.
      * @param day The day to get images.
      * @return An immutable list of images from the specified day.
-     * @throws IOException If something bad happens when retrieving the web page.
+     * @throws IOException If something bad happens when retrieving the web page or images.
+     * @throws InterruptedException If threading is interrupted unexpectedly.
      */
     public List<BufferedImage> getDay(final LocalDate day) throws IOException, InterruptedException {
         final WebPageRetriever webPageRetriever = InjectorRetriever.getInjector().getInstance(WebPageRetriever.class);
@@ -83,15 +84,19 @@ public class CampusImageRetriever {
      * @param endDate The end date.
      * @param timeOfDay The time of day to retrieve each day's image.
      * @return An immutable list of all images for the date range.
+     * @throws IOException If something bad happens when retrieving the web page or images.
+     * @throws InterruptedException If threading is interrupted unexpectedly.
+     * @throws ExecutionException If cache retrieval fails.
      */
     public List<BufferedImage> getDateRange(final LocalDate beginDate, final LocalDate endDate,
                                             final LocalTime timeOfDay) throws IOException, InterruptedException, ExecutionException {
+        final WebPageCache webPageCache = InjectorRetriever.getInjector().getInstance(WebPageCache.class);
         final List<String> pageUrls = Lists.newArrayList();
         LocalDate curDate = beginDate;
 
         while (curDate.compareTo(endDate) <= 0) {
             final String url = URL_BASE + getParamString(curDate.toLocalDateTime(timeOfDay));
-            if (WebPageParser.getTimes(WebPageCache.getWebPage(url)).contains(timeOfDay)) {
+            if (WebPageParser.getTimes(webPageCache.getWebPage(url)).contains(timeOfDay)) {
                 pageUrls.add(url);
             }
             curDate = curDate.plusDays(1);
@@ -122,6 +127,8 @@ public class CampusImageRetriever {
      * wrong with the threads while retrieving images.
      */
     private List<BufferedImage> getImages(final List<String> timeUrls) throws InterruptedException {
+        final WebPageCache webPageCache = InjectorRetriever.getInjector().getInstance(WebPageCache.class);
+        final ImageCache imageCache = InjectorRetriever.getInjector().getInstance(ImageCache.class);
         final ImmutableList.Builder<BufferedImage> images = ImmutableList.builder();
         final ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT);
         final Map<Integer, BufferedImage> imageMap = Collections.synchronizedMap(new HashMap<>());
@@ -131,8 +138,8 @@ public class CampusImageRetriever {
             executorService.execute(
                 () -> {
                     try {
-                        imageMap.put(timeUrlIdxCopy, ImageCache.getImage(
-                                WebPageParser.getImageUrl(WebPageCache.getWebPage(timeUrls.get(timeUrlIdxCopy))))
+                        imageMap.put(timeUrlIdxCopy, imageCache.getImage(
+                                WebPageParser.getImageUrl(webPageCache.getWebPage(timeUrls.get(timeUrlIdxCopy))))
                         );
                     } catch (final ExecutionException e) {
                         // TODO log4j

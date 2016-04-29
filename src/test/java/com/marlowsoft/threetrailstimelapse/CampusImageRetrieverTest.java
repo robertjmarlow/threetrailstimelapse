@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import com.marlowsoft.threetrailstimelapse.bind.FakeModule;
 import com.marlowsoft.threetrailstimelapse.bind.InjectorRetriever;
 import com.marlowsoft.threetrailstimelapse.mock.FakeWebPageRetrieverImpl;
+
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.junit.After;
@@ -21,8 +22,8 @@ import java.util.concurrent.ExecutionException;
 public class CampusImageRetrieverTest {
     /**
      * Gets a single day and verifies the number of retrieved images is correct.
-     * @throws IOException
-     * @throws InterruptedException
+     * @throws IOException If something bad happens when retrieving the web page or images.
+     * @throws InterruptedException If threading is interrupted unexpectedly.
      */
     @Test
     public void testGetDay() throws IOException, InterruptedException {
@@ -37,8 +38,9 @@ public class CampusImageRetrieverTest {
 
     /**
      * Get a date range and verifies the number of retrieved images is correct.
-     * @throws IOException
-     * @throws InterruptedException
+     * @throws IOException If something bad happens when retrieving the web page or images.
+     * @throws InterruptedException If threading is interrupted unexpectedly.
+     * @throws ExecutionException If cache retrieval fails.
      */
     @Test
     public void testGetDateRange() throws IOException, InterruptedException, ExecutionException {
@@ -55,9 +57,9 @@ public class CampusImageRetrieverTest {
 
     /**
      * Tests to make sure that images aren't added if there isn't an image there for that time of the day.
-     * @throws InterruptedException
-     * @throws ExecutionException
-     * @throws IOException
+     * @throws IOException If something bad happens when retrieving the web page or images.
+     * @throws InterruptedException If threading is interrupted unexpectedly.
+     * @throws ExecutionException If cache retrieval fails.
      */
     @Test
     public void testGetDateRangeNoTimeOfDay() throws InterruptedException, ExecutionException, IOException {
