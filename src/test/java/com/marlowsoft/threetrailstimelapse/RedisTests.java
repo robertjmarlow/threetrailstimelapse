@@ -22,11 +22,7 @@ import com.marlowsoft.threetrailstimelapse.web.ImageRetriever;
 import com.marlowsoft.threetrailstimelapse.web.WebPageRetriever;
 
 import org.jsoup.nodes.Document;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import redis.clients.jedis.Jedis;
 
 import java.awt.image.BufferedImage;
@@ -39,7 +35,7 @@ import javax.imageio.ImageIO;
  * Tests a bunch of redis related stuff.
  * Feel free to un-@Ignore this suite if redis is up and running on this machine.
  */
-//@Ignore
+@Ignore
 public class RedisTests {
     private static final String CACHED_PAGE_NAME = SERVER_ADDR + "webpage.html";
     private static final String NOT_CACHED_PAGE_NAME = SERVER_ADDR + "webpage-midnight-times.html";
