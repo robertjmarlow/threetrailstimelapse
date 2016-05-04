@@ -22,7 +22,14 @@ import com.marlowsoft.threetrailstimelapse.web.ImageRetriever;
 import com.marlowsoft.threetrailstimelapse.web.WebPageRetriever;
 
 import org.jsoup.nodes.Document;
-import org.junit.*;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
+
 import redis.clients.jedis.Jedis;
 
 import java.awt.image.BufferedImage;

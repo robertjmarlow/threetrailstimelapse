@@ -10,6 +10,10 @@ plugins {
 group 'com.marlowsoft'
 version '1.0-SNAPSHOT'
 
+compileJava {
+    sourceCompatibility "1.8"
+}
+
 repositories {
     mavenCentral()
 }
@@ -18,7 +22,6 @@ dependencies {
     compile 'com.google.guava:guava:19.0',
             'com.google.inject:guice:4.0',
             'org.jsoup:jsoup:1.8.3',
-            'joda-time:joda-time:2.9.3',
             'org.jcodec:jcodec-javase:0.1.9',
             'redis.clients:jedis:2.8.1',
             'com.google.code.gson:gson:2.6.2'

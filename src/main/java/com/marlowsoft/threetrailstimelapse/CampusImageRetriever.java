@@ -9,13 +9,12 @@ import com.marlowsoft.threetrailstimelapse.cache.ImageCache;
 import com.marlowsoft.threetrailstimelapse.cache.WebPageCache;
 import com.marlowsoft.threetrailstimelapse.web.WebPageRetriever;
 
-import org.joda.time.LocalDate;
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
-import org.jsoup.nodes.Document;
-
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoField;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -59,7 +58,7 @@ public class CampusImageRetriever {
 
         times
             .stream()
-            .forEach(time -> timeUrls.add(URL_BASE + getParamString(day.toLocalDateTime(time))));
+            .forEach(time -> timeUrls.add(URL_BASE + getParamString(LocalDateTime.of(day, time))));
 
         return getImages(timeUrls);
     }
@@ -95,7 +94,7 @@ public class CampusImageRetriever {
         LocalDate curDate = beginDate;
 
         while (curDate.compareTo(endDate) <= 0) {
-            final String url = URL_BASE + getParamString(curDate.toLocalDateTime(timeOfDay));
+            final String url = URL_BASE + getParamString(LocalDateTime.of(curDate, timeOfDay));
             if (WebPageParser.getTimes(webPageCache.getWebPage(url)).contains(timeOfDay)) {
                 pageUrls.add(url);
             }
@@ -171,9 +170,9 @@ public class CampusImageRetriever {
 
         paramBuilder.append(getParamString(dateTime.toLocalDate()));
         paramBuilder.append("&h=");
-        paramBuilder.append(dateTime.getHourOfDay());
+        paramBuilder.append(dateTime.getHour());
         paramBuilder.append("&min=");
-        paramBuilder.append(dateTime.getMinuteOfHour());
+        paramBuilder.append(dateTime.get(ChronoField.MINUTE_OF_HOUR));
 
         return paramBuilder.toString();
     }
@@ -187,7 +186,7 @@ public class CampusImageRetriever {
         final StringBuilder paramBuilder = new StringBuilder();
 
         paramBuilder.append("m=");
-        paramBuilder.append(date.getMonthOfYear());
+        paramBuilder.append(date.getMonthValue());
         paramBuilder.append("&d=");
         paramBuilder.append(date.getDayOfMonth());
         paramBuilder.append("&y=");
