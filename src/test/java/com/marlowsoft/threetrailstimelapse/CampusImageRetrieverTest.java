@@ -8,6 +8,8 @@ import com.marlowsoft.threetrailstimelapse.mock.FakeWebPageRetrieverImpl;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
+import org.joda.time.Period;
+import org.joda.time.PeriodType;
 import org.junit.After;
 import org.junit.Test;
 
@@ -72,6 +74,74 @@ public class CampusImageRetrieverTest {
         FakeWebPageRetrieverImpl.setFakePage("webpage-midnight-times.html");
 
         final List<BufferedImage> images = retriever.getDateRange(beginDate, endDate, timeOfDay);
+
+        assertEquals(0, images.size());
+    }
+
+    /**
+     * Tests to make sure that an image is retrieved when using the <code>fuzziness</code> parameter in
+     * {@link CampusImageRetriever#getDateRange(LocalDate, LocalDate, LocalTime, Period)}.
+     * @throws IOException If something bad happens when retrieving the web page or images.
+     * @throws InterruptedException If threading is interrupted unexpectedly.
+     * @throws ExecutionException If cache retrieval fails.
+     */
+    @Test
+    public void testFuzzyDateRange() throws InterruptedException, ExecutionException, IOException {
+        InjectorRetriever.setInjector(new FakeModule());
+        final CampusImageRetriever retriever = new CampusImageRetriever();
+        final LocalDate beginDate = new LocalDate(2016, 4, 16);
+        final LocalDate endDate = new LocalDate(2016, 4, 16);
+        final LocalTime timeOfDay = new LocalTime(12, 39);
+        final Period fuzziness = Period.minutes(40);
+
+        // luckily, this has a gap around noon
+        FakeWebPageRetrieverImpl.setFakePage("webpage-midnight-times.html");
+
+        final List<BufferedImage> images = retriever.getDateRange(beginDate, endDate, timeOfDay, fuzziness);
+
+        assertEquals(1, images.size());
+    }
+
+    /**
+     * Verifies that an image is retrieved if a time is actually found and no search needs to be done.
+     * @throws IOException If something bad happens when retrieving the web page or images.
+     * @throws InterruptedException If threading is interrupted unexpectedly.
+     * @throws ExecutionException If cache retrieval fails.
+     */
+    @Test
+    public void testFuzzyDateRangeNoFuzziness() throws InterruptedException, ExecutionException, IOException {
+        InjectorRetriever.setInjector(new FakeModule());
+        final CampusImageRetriever retriever = new CampusImageRetriever();
+        final LocalDate beginDate = new LocalDate(2016, 4, 16);
+        final LocalDate endDate = new LocalDate(2016, 4, 16);
+        final LocalTime timeOfDay = new LocalTime(12, 20);
+        final Period fuzziness = Period.minutes(0);
+
+        FakeWebPageRetrieverImpl.setFakePage("webpage-midnight-times.html");
+
+        final List<BufferedImage> images = retriever.getDateRange(beginDate, endDate, timeOfDay, fuzziness);
+
+        assertEquals(1, images.size());
+    }
+
+    /**
+     * Verifies no images are retrieved if the fuzziness isn't enough to find an image.
+     * @throws IOException If something bad happens when retrieving the web page or images.
+     * @throws InterruptedException If threading is interrupted unexpectedly.
+     * @throws ExecutionException If cache retrieval fails.
+     */
+    @Test
+    public void testFuzzyDateRangeNoDate() throws InterruptedException, ExecutionException, IOException {
+        InjectorRetriever.setInjector(new FakeModule());
+        final CampusImageRetriever retriever = new CampusImageRetriever();
+        final LocalDate beginDate = new LocalDate(2016, 4, 16);
+        final LocalDate endDate = new LocalDate(2016, 4, 16);
+        final LocalTime timeOfDay = new LocalTime(11, 30);
+        final Period fuzziness = Period.minutes(10);
+
+        FakeWebPageRetrieverImpl.setFakePage("webpage-midnight-times.html");
+
+        final List<BufferedImage> images = retriever.getDateRange(beginDate, endDate, timeOfDay, fuzziness);
 
         assertEquals(0, images.size());
     }
