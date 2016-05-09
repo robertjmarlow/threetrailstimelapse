@@ -12,6 +12,7 @@ import com.marlowsoft.threetrailstimelapse.web.WebPageRetriever;
 
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
+import org.joda.time.Period;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.junit.Ignore;
@@ -70,5 +71,27 @@ public class NotFakeTests {
         final List<BufferedImage> images = retriever.getDateRange(beginDate, endDate, timeOfDay);
 
         assertEquals(4, images.size());
+    }
+
+    /**
+     * There are a bunch of images missing on the website in Feb and March of 2016.
+     * Test to make sure that the service handles this gracefully.
+     * @throws IOException If something bad happens when retrieving the web page or images.
+     * @throws InterruptedException If threading is interrupted unexpectedly.
+     * @throws ExecutionException If cache retrieval fails.
+     */
+    @Test
+    public void test404Images() throws InterruptedException, ExecutionException, IOException {
+        InjectorRetriever.setInjector(new ConcreteModule());
+        final CampusImageRetriever retriever = new CampusImageRetriever();
+
+        final LocalDate beginDate = new LocalDate(2016, 1, 1);
+        final LocalDate endDate = new LocalDate(2016, 5, 1);
+        final LocalTime timeOfDay = new LocalTime(12, 0);
+        final Period fuzziness = Period.minutes(60);
+
+        final List<BufferedImage> images = retriever.getDateRange(beginDate, endDate, timeOfDay, fuzziness);
+
+        assertEquals(62, images.size());
     }
 }

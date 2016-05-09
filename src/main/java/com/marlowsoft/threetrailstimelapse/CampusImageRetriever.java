@@ -9,6 +9,8 @@ import com.marlowsoft.threetrailstimelapse.cache.ImageCache;
 import com.marlowsoft.threetrailstimelapse.cache.WebPageCache;
 import com.marlowsoft.threetrailstimelapse.web.WebPageRetriever;
 
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -17,6 +19,8 @@ import org.joda.time.Period;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +50,8 @@ public class CampusImageRetriever {
      * How long to wait, in seconds, to retrieve images from the website before giving up.
      */
     private static final int IMAGE_WAIT_TIME = 30;
+
+    private static final Logger logger = LogManager.getLogger();
 
     /**
      * Get all images for the specified day.
@@ -196,8 +202,13 @@ public class CampusImageRetriever {
                                 WebPageParser.getImageUrl(webPageCache.getWebPage(timeUrls.get(timeUrlIdxCopy))))
                         );
                     } catch (final ExecutionException e) {
-                        // TODO log4j
-                        e.printStackTrace();
+                        final StringWriter sw = new StringWriter();
+                        e.printStackTrace(new PrintWriter(sw));
+
+                        logger.error("While attempting to get an image from...\r\n"
+                            + timeUrls.get(timeUrlIdxCopy)
+                            + "\r\n...this happened:\r\n"
+                            + sw.toString() + "\r\n");
                     }
                 }
             );
