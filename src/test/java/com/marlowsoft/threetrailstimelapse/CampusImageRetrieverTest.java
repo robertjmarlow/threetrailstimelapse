@@ -9,7 +9,7 @@ import com.marlowsoft.threetrailstimelapse.mock.FakeWebPageRetrieverImpl;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
 import org.joda.time.Period;
-import org.joda.time.PeriodType;
+
 import org.junit.After;
 import org.junit.Test;
 
