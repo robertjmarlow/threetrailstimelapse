@@ -10,8 +10,6 @@ import com.marlowsoft.threetrailstimelapse.bind.InjectorRetriever;
 import com.marlowsoft.threetrailstimelapse.web.ImageRetriever;
 import com.marlowsoft.threetrailstimelapse.web.WebPageRetriever;
 
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.junit.Ignore;
@@ -19,6 +17,8 @@ import org.junit.Test;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -63,9 +63,9 @@ public class NotFakeTests {
     public void getAFewPagesAndImages() throws InterruptedException, ExecutionException, IOException {
         InjectorRetriever.setInjector(new ConcreteModule());
         final CampusImageRetriever retriever = new CampusImageRetriever();
-        final LocalDate beginDate = new LocalDate(2016, 4, 16);
-        final LocalDate endDate = new LocalDate(2016, 4, 19);
-        final LocalTime timeOfDay = new LocalTime(12, 0);
+        final LocalDate beginDate = LocalDate.of(2016, 4, 16);
+        final LocalDate endDate = LocalDate.of(2016, 4, 19);
+        final LocalTime timeOfDay = LocalTime.of(12, 0);
 
         final List<BufferedImage> images = retriever.getDateRange(beginDate, endDate, timeOfDay);
 

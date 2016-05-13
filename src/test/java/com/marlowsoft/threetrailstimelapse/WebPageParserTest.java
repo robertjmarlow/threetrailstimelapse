@@ -9,12 +9,14 @@ import com.marlowsoft.threetrailstimelapse.bind.FakeModule;
 import com.marlowsoft.threetrailstimelapse.mock.FakeWebPageRetrieverImpl;
 import com.marlowsoft.threetrailstimelapse.web.WebPageRetriever;
 
-import org.joda.time.LocalTime;
 import org.jsoup.nodes.Document;
 import org.junit.After;
 import org.junit.Test;
 
 import java.io.IOException;
+
+import java.time.LocalTime;
+import java.time.temporal.ChronoField;
 import java.util.List;
 
 /**
@@ -33,10 +35,10 @@ public class WebPageParserTest {
         final List<LocalTime> times = WebPageParser.getTimes(webPageRetriever.getWebPage("webpage.html"));
 
         assertEquals(31, times.size());
-        assertEquals(6, times.get(0).getHourOfDay());
-        assertEquals(59, times.get(0).getMinuteOfHour());
-        assertEquals(12, times.get(15).getHourOfDay());
-        assertEquals(0, times.get(15).getMinuteOfHour());
+        assertEquals(6, times.get(0).getHour());
+        assertEquals(59, times.get(0).get(ChronoField.MINUTE_OF_HOUR));
+        assertEquals(12, times.get(15).getHour());
+        assertEquals(0, times.get(15).get(ChronoField.MINUTE_OF_HOUR));
     }
 
     /**
@@ -55,14 +57,14 @@ public class WebPageParserTest {
         final List<LocalTime> times = WebPageParser.getTimes(webPageRetriever.getWebPage(""));
 
         assertEquals(48, times.size());
-        assertEquals(0, times.get(0).getHourOfDay());
-        assertEquals(0, times.get(0).getMinuteOfHour());
-        assertEquals(0, times.get(1).getHourOfDay());
-        assertEquals(20, times.get(1).getMinuteOfHour());
-        assertEquals(0, times.get(2).getHourOfDay());
-        assertEquals(40, times.get(2).getMinuteOfHour());
-        assertEquals(1, times.get(3).getHourOfDay());
-        assertEquals(0, times.get(3).getMinuteOfHour());
+        assertEquals(0, times.get(0).getHour());
+        assertEquals(0, times.get(0).get(ChronoField.MINUTE_OF_HOUR));
+        assertEquals(0, times.get(1).getHour());
+        assertEquals(20, times.get(1).get(ChronoField.MINUTE_OF_HOUR));
+        assertEquals(0, times.get(2).getHour());
+        assertEquals(40, times.get(2).get(ChronoField.MINUTE_OF_HOUR));
+        assertEquals(1, times.get(3).getHour());
+        assertEquals(0, times.get(3).get(ChronoField.MINUTE_OF_HOUR));
     }
 
     @After
