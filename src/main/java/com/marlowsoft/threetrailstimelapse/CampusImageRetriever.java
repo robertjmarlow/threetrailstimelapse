@@ -9,8 +9,14 @@ import com.marlowsoft.threetrailstimelapse.cache.ImageCache;
 import com.marlowsoft.threetrailstimelapse.cache.WebPageCache;
 import com.marlowsoft.threetrailstimelapse.web.WebPageRetriever;
 
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -23,6 +29,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Various methods to retrieve images from the construction progress of
@@ -43,6 +50,8 @@ public class CampusImageRetriever {
      * How long to wait, in seconds, to retrieve images from the website before giving up.
      */
     private static final int IMAGE_WAIT_TIME = 30;
+
+    private static final Logger logger = LogManager.getLogger();
 
     /**
      * Get all images for the specified day.
@@ -105,6 +114,58 @@ public class CampusImageRetriever {
     }
 
     /**
+     * Gets all images between the specified dates at the specified time of day every day. If the exact time doesn't exist,
+     * the <code>fuzziness</code> parameter will be used to search for a time <i>near</i> the time.
+     * @param beginDate The beginning date.
+     * @param endDate The end date.
+     * @param timeOfDay The time of day to retrieve each day's image.
+     * @param fuzziness The amount of time to add to the upper and lower bounds to search for a time
+     *                  if the exact time doesn't exist on the page.
+     * @return An immutable list of all images for the date range.
+     * @throws IOException If something bad happens when retrieving the web page or images.
+     * @throws InterruptedException If threading is interrupted unexpectedly.
+     * @throws ExecutionException If cache retrieval fails.
+     */
+    public List<BufferedImage> getDateRange(final LocalDate beginDate, final LocalDate endDate,
+                                            final LocalTime timeOfDay, final Duration fuzziness) throws
+            IOException, InterruptedException, ExecutionException {
+        final WebPageCache webPageCache = InjectorRetriever.getInjector().getInstance(WebPageCache.class);
+        final List<String> pageUrls = Lists.newArrayList();
+        LocalDate curDate = beginDate;
+
+        while (curDate.compareTo(endDate) <= 0) {
+            final String url = URL_BASE + getParamString(LocalDateTime.of(curDate, timeOfDay));
+            final List<LocalTime> times = WebPageParser.getTimes(webPageCache.getWebPage(url));
+
+            if (times.contains(timeOfDay)) {
+                pageUrls.add(url);
+            } else {
+                // start looking for a time around the specified time
+                final LocalTime lowerTime = timeOfDay.minus(fuzziness);
+                final LocalTime upperTime = timeOfDay.plus(fuzziness);
+                final List<LocalTime> fuzzyTimes = times.stream()
+                        .filter(time -> time.compareTo(lowerTime) >= 0 && time.compareTo(upperTime) <= 0)
+                        .collect(Collectors.toList());
+
+                // find the time closest to the specified time
+                if (fuzzyTimes.size() > 0) {
+                    LocalTime closestTime = fuzzyTimes.get(0);
+                    for (final LocalTime time : fuzzyTimes) {
+                        if (Math.abs(time.get(ChronoField.MINUTE_OF_DAY) - timeOfDay.get(ChronoField.MINUTE_OF_DAY))
+                            < Math.abs(closestTime.get(ChronoField.MINUTE_OF_DAY) - timeOfDay.get(ChronoField.MINUTE_OF_DAY))) {
+                            closestTime = time;
+                        }
+                    }
+                    pageUrls.add(URL_BASE + getParamString(LocalDateTime.of(curDate, closestTime)));
+                }
+            }
+            curDate = curDate.plusDays(1);
+        }
+
+        return getImages(pageUrls);
+    }
+
+    /**
      * Gets all images between the specified dates at the specified times of day every day.
      * @param beginDate The beginning date.
      * @param endDate The end date.
@@ -141,8 +202,13 @@ public class CampusImageRetriever {
                                 WebPageParser.getImageUrl(webPageCache.getWebPage(timeUrls.get(timeUrlIdxCopy))))
                         );
                     } catch (final ExecutionException e) {
-                        // TODO log4j
-                        e.printStackTrace();
+                        final StringWriter sw = new StringWriter();
+                        e.printStackTrace(new PrintWriter(sw));
+
+                        logger.error("While attempting to get an image from...\r\n"
+                            + timeUrls.get(timeUrlIdxCopy)
+                            + "\r\n...this happened:\r\n"
+                            + sw.toString() + "\r\n");
                     }
                 }
             );

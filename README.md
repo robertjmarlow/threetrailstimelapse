@@ -4,7 +4,7 @@ Cerner is building [a fancy new campus](http://www.kansascity.com/news/business/
 
 This library splices together a bunch of images from the archived webcam pictures of the construction to create a time lapse.
 
-Here's a (slightly choppy) result from January 1, 2016 to April 15, 2016: [3.4MB gfycat](https://gfycat.com/GroundedZanyGuanaco#?speed=0.25).
+Here's a result from July 30, 2015 to May 12, 2016: [14.2MB gfycat](https://gfycat.com/WiltedEnergeticCopepod#?speed=0.5).
 
 # Building
 
@@ -23,6 +23,14 @@ gradlew build
 ```
 
 If Gradle is installed, run the build task.
+
+# Redis Cache
+
+To avoid [DDOS'ing](https://en.wikipedia.org/wiki/Denial-of-service_attack) the website, an optional but _highly recommended_ [Redis](http://redis.io/) chache is used to cache pages and images from the site.
+
+If running on OSX/*nix, installation of Redis is [pretty straightforward](http://redis.io/download#installation).
+
+If running on Windows, installation is much less straightforward. [redis-windows](https://github.com/ServiceStack/redis-windows) on GitHub has Windows-flavored Redis binaries. The problem with this is that you'd be reliant on the maintainers of the repo to create new versions of Redis when they're released. A [Vagrant VM](https://www.vagrantup.com/) of [Ubuntu Server](https://atlas.hashicorp.com/ubuntu/boxes/trusty64) with the Redis [port fowraded](https://www.vagrantup.com/docs/networking/forwarded_ports.html) to the host Windows machine is a viable option.
 
 # Usage
 
