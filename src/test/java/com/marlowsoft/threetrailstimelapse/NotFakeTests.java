@@ -17,8 +17,10 @@ import org.junit.Test;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -70,5 +72,27 @@ public class NotFakeTests {
         final List<BufferedImage> images = retriever.getDateRange(beginDate, endDate, timeOfDay);
 
         assertEquals(4, images.size());
+    }
+
+    /**
+     * There are a bunch of images missing on the website in Feb and March of 2016.
+     * Test to make sure that the service handles this gracefully.
+     * @throws IOException If something bad happens when retrieving the web page or images.
+     * @throws InterruptedException If threading is interrupted unexpectedly.
+     * @throws ExecutionException If cache retrieval fails.
+     */
+    @Test
+    public void test404Images() throws InterruptedException, ExecutionException, IOException {
+        InjectorRetriever.setInjector(new ConcreteModule());
+        final CampusImageRetriever retriever = new CampusImageRetriever();
+
+        final LocalDate beginDate = LocalDate.of(2016, 1, 1);
+        final LocalDate endDate = LocalDate.of(2016, 5, 1);
+        final LocalTime timeOfDay = LocalTime.of(12, 0);
+        final Duration fuzziness = Duration.of(60, ChronoUnit.MINUTES);
+
+        final List<BufferedImage> images = retriever.getDateRange(beginDate, endDate, timeOfDay, fuzziness);
+
+        assertEquals(62, images.size());
     }
 }

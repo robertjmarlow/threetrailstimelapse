@@ -24,26 +24,25 @@ public class ImageRetrieverImpl implements ImageRetriever{
 
         if (redisSettings.getUseRedis()) {
             final JedisPoolRetriever jedisPoolRetriever = InjectorRetriever.getInjector().getInstance(JedisPoolRetriever.class);
-            final Jedis jedis = jedisPoolRetriever.getJedisPool().getResource();
             final byte[] urlBytes = url.getBytes();
 
-            // can we get this from the redis cache?
-            if (jedis.exists(urlBytes)) {
-                // get the image from redis
-                image = ImageIO.read(new ByteArrayInputStream(jedis.get(urlBytes)));
-            } else {
-                // get the image from the internet and store the binary image to redis
-                image = ImageIO.read(new URL(url));
-                final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                ImageIO.write(image, "jpg", outputStream);
-                outputStream.flush();
-                final byte[] bytes = outputStream.toByteArray();
-                outputStream.close();
+            try (final Jedis jedis = jedisPoolRetriever.getJedisPool().getResource()) {
+                // can we get this from the redis cache?
+                if (jedis.exists(urlBytes)) {
+                    // get the image from redis
+                    image = ImageIO.read(new ByteArrayInputStream(jedis.get(urlBytes)));
+                } else {
+                    // get the image from the internet and store the binary image to redis
+                    image = ImageIO.read(new URL(url));
+                    final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    ImageIO.write(image, "jpg", outputStream);
+                    outputStream.flush();
+                    final byte[] bytes = outputStream.toByteArray();
+                    outputStream.close();
 
-                jedis.set(urlBytes, bytes);
+                    jedis.set(urlBytes, bytes);
+                }
             }
-
-            jedis.close();
         } else {
             image = ImageIO.read(new URL(url));
         }
