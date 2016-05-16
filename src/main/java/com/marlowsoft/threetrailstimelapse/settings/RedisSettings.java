@@ -29,7 +29,8 @@ public class RedisSettings {
      * Overloaded constructor.
      * @param useRedis Whether or not to use redis.
      * @param redisPort The port the redis instance is running on.
-     * @param redisPassword The password to connect to the redis instance with.
+     * @param redisPassword The password to connect to the redis instance with. If no password is being used,
+     *                      set this to <code>null</code>.
      */
     public RedisSettings(boolean useRedis, int redisPort, String redisPassword) {
         this.useRedis = useRedis;
