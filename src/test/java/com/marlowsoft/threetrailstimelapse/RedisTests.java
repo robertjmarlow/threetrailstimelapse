@@ -1,7 +1,6 @@
 package com.marlowsoft.threetrailstimelapse;
 
 import static com.marlowsoft.threetrailstimelapse.TestConstants.REDIS_PORT;
-import static com.marlowsoft.threetrailstimelapse.TestConstants.REDIS_PWORD;
 import static com.marlowsoft.threetrailstimelapse.TestConstants.SERVER_ADDR;
 import static com.marlowsoft.threetrailstimelapse.TestConstants.SERVER_PORT;
 import static org.junit.Assert.assertEquals;
@@ -45,11 +44,10 @@ import javax.imageio.ImageIO;
 @Ignore
 public class RedisTests {
     private static final String CACHED_PAGE_NAME = SERVER_ADDR + "webpage.html";
-    private static final String NOT_CACHED_PAGE_NAME = SERVER_ADDR + "webpage-midnight-times.html";
+    private static final String NOT_CACHED_PAGE_NAME = SERVER_ADDR + "webpage-midnight-times.html?m=1&d=2&y=2016";
     private static final String CACHED_IMAGE_NAME = SERVER_ADDR + "regular_expressions.png";
     private static final String NOT_CACHED_IMAGE_NAME = SERVER_ADDR + "duty_calls.png";
     private static String webpageHTML;
-    private static BufferedImage image;
     private static byte[] imageBytes;
     private static FakeWebServer fakeWebServer;
     private static Jedis jedis;
@@ -58,7 +56,7 @@ public class RedisTests {
 
     @BeforeClass
     public static void suiteSetUp() throws IOException {
-        Settings.setRedisSettings(new RedisSettings(true, REDIS_PORT, REDIS_PWORD));
+        Settings.setRedisSettings(new RedisSettings(true, REDIS_PORT, null));
         jedis = InjectorRetriever.getInjector().getInstance(JedisPoolRetriever.class).getJedisPool().getResource();
         Joiner joiner = Joiner.on("");
         webpageHTML = joiner.join(Files.asCharSource(new File("src/test/resources/webpage.html"), Charsets.UTF_8).readLines());
@@ -67,7 +65,7 @@ public class RedisTests {
         imageRetriever = injector.getInstance(ImageRetriever.class);
         fakeWebServer = new FakeWebServer(SERVER_PORT);
 
-        image = ImageIO.read(new File("src/test/resources/regular_expressions.png"));
+        BufferedImage image = ImageIO.read(new File("src/test/resources/regular_expressions.png"));
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ImageIO.write(image, "jpg", outputStream);
         outputStream.flush();
@@ -129,7 +127,7 @@ public class RedisTests {
     }
 
     /**
-     * Verifies that an is retrieved from the redis cache.
+     * Verifies that an image is retrieved from the redis cache.
      * @throws IOException If a problem happens when getting the image.
      */
     @Test
@@ -143,7 +141,7 @@ public class RedisTests {
     }
 
     /**
-     * Verifies that an is retrieved from the fake server.
+     * Verifies that an image is retrieved from the fake server.
      * @throws IOException If a problem happens when getting the image.
      */
     @Test

@@ -47,9 +47,9 @@ public class CampusImageRetriever {
     private static final int THREAD_COUNT = 10;
 
     /**
-     * How long to wait, in seconds, to retrieve images from the website before giving up.
+     * How long to wait, in seconds per image, to retrieve images from the website before giving up.
      */
-    private static final int IMAGE_WAIT_TIME = 30;
+    private static final int IMAGE_WAIT_TIME = 15;
 
     private static final Logger logger = LogManager.getLogger();
 
@@ -216,7 +216,7 @@ public class CampusImageRetriever {
 
         // wait for the threads to complete
         executorService.shutdown();
-        executorService.awaitTermination(IMAGE_WAIT_TIME, TimeUnit.SECONDS);
+        executorService.awaitTermination(IMAGE_WAIT_TIME * timeUrls.size(), TimeUnit.SECONDS);
 
         // re-assemble the images back into order
         for (int imgIdx : imageMap.keySet()) {
