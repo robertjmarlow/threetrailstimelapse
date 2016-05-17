@@ -6,6 +6,8 @@ This library splices together a bunch of images from the archived webcam picture
 
 Here's a result from July 30, 2015 to May 12, 2016: [14.2MB gfycat](https://gfycat.com/WiltedEnergeticCopepod#?speed=0.5).
 
+The website _does_ have [its own version of a timelapse](http://p-tn.net/pCAM/CERNERNE/movie.asp), but QuickTime needs to be installed in order to view it. With new web standards like [WebM](http://www.webmproject.org/) and [H.264/MP4](https://en.wikipedia.org/wiki/H.264/MPEG-4_AVC), installing a separarate application is unnecessary.
+
 # Building
 
 This library uses [gradle](http://gradle.org/) for its build lifecycle. If Gradle isn't installed, wrappers for both Windows and Unix-based systems are included with the repo that can invoke Gradle without having to install it.
